@@ -1,30 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:MauiDemoApp="clr-namespace:MauiDemoApp"
-            x:Class="MauiDemoApp.MainPage">
+             xmlns:local="clr-namespace:MauiDemoApp"
+             x:Class="MauiDemoApp.MainPage"
+             Title="CemRenderer Demo">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
+    <Grid RowDefinitions="*,Auto,*"
+          Padding="20">
 
-            <Button
-                x:Name="asyncButton"
-                Text="Async"
-                Clicked="OnAsyncClicked"
-                HorizontalOptions="Center" />
+        <VerticalStackLayout Grid.Row="1"
+                             Spacing="20"
+                             HorizontalOptions="Center">
 
-            <Label
-                x:Name="asyncLabel"
-                Text="Loading ..."
-                FontSize="18"
-                IsVisible="False"
-                HorizontalOptions="Center" />
-            
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="{StaticResource Primary}"/>
+
+            <Label Text="Loading..."
+                   IsVisible="{Binding IsLoading}"
+                   HorizontalOptions="Center"/>
+
+            <!-- Login Button -->
+            <Button Text="Start troubleshooting session"
+                    Command="{Binding LoginCommand}"
+                    IsVisible="{Binding IsNotLoading}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource White}"
+                    FontSize="16"
+                    CornerRadius="10"
+                    Padding="20,14"
+                    HorizontalOptions="Center"/>
+
+            <!-- Error Message -->
+            <Label Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding HasError}"
+                   TextColor="Red"
+                   HorizontalOptions="Center"/>
+
         </VerticalStackLayout>
-    </ScrollView>
-
+    </Grid>
 </ContentPage>
-

@@ -1,4 +1,4 @@
-﻿#if IOS 
+﻿#if IOS
 using UIKit;
 #endif
 
@@ -6,7 +6,7 @@ namespace MauiDemoApp;
 
 public partial class App : Application
 {
-	public App()
+	public App(IServiceProvider services)
 	{
 		InitializeComponent();
 
@@ -15,7 +15,6 @@ public partial class App : Application
         UIApplication.SharedApplication.SetStatusBarHidden(false, false);
 #endif
 
-        MainPage = new AppShell();
+		MainPage = new NavigationPage(services.GetRequiredService<MainPage>());
 	}
 }
-

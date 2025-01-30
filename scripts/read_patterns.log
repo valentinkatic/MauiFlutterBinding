@@ -1,0 +1,35 @@
+Loading configuration file: ignore_patterns.conf
+Switched to section: Common
+Switched to section: Flutter
+Switched to section: MAUI
+Switched to section: Android
+Switched to section: iOS
+Common patterns: node_modules,.git,.svn,.hg,.DS_Store,Thumbs.db,.vs,.idea,artifact_.*\.md,generate_artifacts.sh,ignore_patterns.conf,projects.conf
+Project-specific patterns: build/,.dart_tool/,.flutter-plugins,.pub-cache,.pub/,.packages,.android/,.ios/,bin/,obj/,.vs/,packages/,TestResults/
+Final ignore patterns: node_modules,.git,.svn,.hg,.DS_Store,Thumbs.db,.vs,.idea,artifact_.*\.md,generate_artifacts.sh,ignore_patterns.conf,projects.conf,build/,.dart_tool/,.flutter-plugins,.pub-cache,.pub/,.packages,.android/,.ios/,bin/,obj/,.vs/,packages/,TestResults/
+Generated Ignore Patterns:
+node_modules
+.git
+.svn
+.hg
+.DS_Store
+Thumbs.db
+.vs
+.idea
+artifact_.*\.md
+generate_artifacts.sh
+ignore_patterns.conf
+projects.conf
+build/
+.dart_tool/
+.flutter-plugins
+.pub-cache
+.pub/
+.packages
+.android/
+.ios/
+bin/
+obj/
+.vs/
+packages/
+TestResults/

@@ -5,6 +5,9 @@ Android.Native/.idea
 Android.Native/binding/xamarin
 iOS.Binding/bin
 iOS.Binding/obj
+iOS.Binding/Frameworks
+*.xcframework
 MauiDemoApp/bin
 MauiDemoApp/obj
 flutter_app/.gradle
+.DS_Store

@@ -1,6 +1,6 @@
 # Builds a xc library for a given xcode project (framework)
 echo "Define parameters"
-IOS_SDK_VERSION="17.2" # xcodebuild -showsdks
+IOS_SDK_VERSION="18.2" # xcodebuild -showsdks
 MAUI_BINDING_NAME="iOS.Binding"
 SWIFT_PROJECT_NAME="Binding"
 SWIFT_PROJECT_PATH="$SWIFT_PROJECT_NAME.xcodeproj"

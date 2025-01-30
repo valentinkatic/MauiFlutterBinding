@@ -4,6 +4,7 @@ namespace MauiDemoApp;
 
 public static class MauiProgram
 {
+    [Obsolete]
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -23,6 +24,14 @@ public static class MauiProgram
                 handlers.AddHandler(typeof(FlutterView), typeof(FlutterViewHandler));
 #endif
             });
+
+        // Register services
+        builder.Services.AddSingleton<IDispatcher>(Dispatcher.GetForCurrentThread());
+
+        // Register pages and viewmodels
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<MainViewModel>();
+        builder.Services.AddTransient<FlutterPage>();
 
         return builder.Build();
     }

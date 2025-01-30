@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -27,11 +27,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     namespace 'com.maui.binding'
 }
@@ -102,8 +102,8 @@ task xamarin() {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
     implementation 'com.example.flutter_app:flutter_release:1.0'
-    implementation "androidx.fragment:fragment:1.6.2"
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.fragment:fragment-ktx:1.8.5"
+    implementation 'androidx.appcompat:appcompat:1.7.0'
 }

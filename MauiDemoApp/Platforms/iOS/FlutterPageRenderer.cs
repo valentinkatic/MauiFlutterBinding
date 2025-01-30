@@ -1,63 +1,85 @@
-﻿using System;
-using Foundation;
-using Microsoft.Maui.Controls.Handlers.Compatibility;
-using UIKit;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Runtime.Versioning;
-using Microsoft.Maui.Controls.Internals;
-using Microsoft.Maui.Controls.Platform;
-using Microsoft.Maui.Graphics;
-using ObjCRuntime;
-using UIKit;
-using PointF = CoreGraphics.CGPoint;
-using RectangleF = CoreGraphics.CGRect;
-using SizeF = CoreGraphics.CGSize;
-using Microsoft.Maui.Controls.Compatibility.Platform.iOS;
-using UIKit;
+﻿using UIKit;
 using iOS.Binding;
-using Microsoft.Maui.Controls.PlatformConfiguration;
+using Microsoft.Maui.Controls.Compatibility.Platform.iOS;
 
 namespace MauiDemoApp
 {
-    public class FlutterPageRenderer : UIViewController, IVisualElementRenderer
+    [Obsolete]
+    public class FlutterPageRenderer : PageRenderer
     {
-        private readonly UIViewController _controller;
+        private UIViewController? _controller;
+        private CemRendererViewWrapper _wrapper;
 
         public FlutterPageRenderer()
         {
-            _controller = (new iOS.Binding.Binding()).FlutterViewController;
+            // Initialize wrapper with this as delegate for OnResult callback
+            _wrapper = new CemRendererViewWrapper(new FlutterPageRendererDelegate(OnResult));
         }
 
-        public VisualElement Element { get; private set; }
-
-        public event EventHandler<VisualElementChangedEventArgs> ElementChanged;
-
-        public UIView NativeView
+        public override void ViewDidLoad()
         {
-            get { return _controller.View; }
+            base.ViewDidLoad();
+
+            // Get the actual values from the bound FlutterPage
+            var flutterPage = Element as FlutterPage;
+            if (flutterPage != null)
+            {
+                _controller = _wrapper.CreateFlutterViewControllerWithSessionToken(
+                    flutterPage.SessionToken,
+                    flutterPage.BaseUrl,
+                    flutterPage.ToolName
+                );
+
+                if (_controller != null)
+                {
+                    // Add Flutter view controller as child
+                    AddChildViewController(_controller);
+                    View.AddSubview(_controller.View);
+                    _controller.DidMoveToParentViewController(this);
+
+                    // Set Flutter view constraints to fill parent
+                    _controller.View.TranslatesAutoresizingMaskIntoConstraints = false;
+                    NSLayoutConstraint.ActivateConstraints(
+                    [
+                        _controller.View.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor),
+                        _controller.View.TrailingAnchor.ConstraintEqualTo(View.TrailingAnchor),
+                        _controller.View.TopAnchor.ConstraintEqualTo(View.TopAnchor),
+                        _controller.View.BottomAnchor.ConstraintEqualTo(View.BottomAnchor)
+                    ]);
+                }
+            }
         }
 
-        public SizeRequest GetDesiredSize(double widthConstraint, double heightConstraint)
+        public void OnResult(CemRendererResultObjc result)
         {
-            return NativeView.GetSizeRequest(widthConstraint, heightConstraint);
+            var flutterPage = Element as FlutterPage;
+            flutterPage?.HandleResult(result);
         }
 
-        public void SetElement(VisualElement element)
+        protected override void Dispose(bool disposing)
         {
-            Element = element;
+            if (disposing)
+            {
+                CemRendererViewWrapper.DestroyView();
+                _controller?.Dispose();
+                _controller = null;
+            }
+            base.Dispose(disposing);
         }
+    }
+}
 
-        public void SetElementSize(Size size)
-        {
-            Element.Layout(new Rect(Element.X, Element.Y, size.Width, size.Height));
-        }
+public class FlutterPageRendererDelegate : CemRendererViewDelegate
+{
+    private Action<CemRendererResultObjc> _resultHandler;
 
-        public UIViewController ViewController
-        {
-            get { return _controller; }
-        }
+    public FlutterPageRendererDelegate(Action<CemRendererResultObjc> resultHandler)
+    {
+        _resultHandler = resultHandler;
+    }
+
+    public override void OnResult(CemRendererResultObjc result)
+    {
+        _resultHandler?.Invoke(result);
     }
 }

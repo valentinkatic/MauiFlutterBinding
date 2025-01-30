@@ -1,4 +1,4 @@
-﻿namespace MauiDemoApp;
+namespace MauiDemoApp;
 
 public class FlutterView : ContentView
 {

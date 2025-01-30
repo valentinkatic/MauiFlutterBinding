@@ -27,17 +27,8 @@ struct ContentView: View {
 struct TestView: View {
     @State var result: String?
     var body: some View {
-        VStack(spacing: 20) {            
-            if let result {
-                Text(result)
-            } else {
-                Button("Async") {
-                    result = "Loading ..."
-                    SwiftBinding().async(parameters: ["Hello","world!"]) { result in
-                        self.result = result
-                    }
-                }
-            }
+        VStack(spacing: 20) {
+            Text("Hello world!")
         }
         .padding()
     }
