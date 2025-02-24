@@ -11,9 +11,12 @@ import androidx.core.view.doOnAttach
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragment
+import io.flutter.plugins.GeneratedPluginRegistrant
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,11 +40,23 @@ class Binding {
         val view = FragmentContainerView(activity)
             .apply { id = View.generateViewId() }
 
-        view.doOnAttach {
-            (activity as AppCompatActivity).supportFragmentManager.beginTransaction()
-                .add(view.id, FlutterFragment.createDefault())
-                .commit()
-        }
+        val flutterFragment = FlutterFragment.createDefault()
+
+        (activity as AppCompatActivity).supportFragmentManager.beginTransaction()
+            .add(view.id, flutterFragment)
+            .commit()
+
+        // Wait for fragment to be created and engine to be ready
+        flutterFragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                flutterFragment.flutterEngine?.let { engine ->
+                    // This is crucial - without this, plugins won't work
+                    GeneratedPluginRegistrant.registerWith(engine)
+                }
+                owner.lifecycle.removeObserver(this)
+            }
+        })
+
         flutterView = view
         return view
     }

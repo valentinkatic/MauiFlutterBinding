@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-ios</TargetFramework>
+    <TargetFramework>net9.0-ios</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <IsBindingProject>true</IsBindingProject>
@@ -29,6 +29,22 @@
 
   <ItemGroup>
     <NativeReference Include="Flutter.xcframework">
+      <Kind>Framework</Kind>
+      <Frameworks>Foundation UIKit</Frameworks>
+      <SmartLink>True</SmartLink>
+    </NativeReference>    
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeReference Include="FlutterPluginRegistrant.xcframework">
+      <Kind>Framework</Kind>
+      <Frameworks>Foundation UIKit</Frameworks>
+      <SmartLink>True</SmartLink>
+    </NativeReference>    
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeReference Include="device_info_plus.xcframework">
       <Kind>Framework</Kind>
       <Frameworks>Foundation UIKit</Frameworks>
       <SmartLink>True</SmartLink>

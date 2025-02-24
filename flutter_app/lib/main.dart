@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
@@ -45,6 +48,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _deviceInfo = "";
   int _counter = 0;
 
   void _incrementCounter() {
@@ -56,6 +60,19 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  void _checkDeviceInfo() async {
+    final deviceInfoPlugin = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      final deviceInfo = await deviceInfoPlugin.deviceInfo as AndroidDeviceInfo;
+      _deviceInfo = "Device: ${deviceInfo.model}\nAndroid: ${deviceInfo.version.release}\nSDK: ${deviceInfo.version.sdkInt}\nBrand: ${deviceInfo.brand}";
+    } else if (Platform.isIOS) {
+      final deviceInfo = await deviceInfoPlugin.deviceInfo as IosDeviceInfo;
+      _deviceInfo = "Device: ${deviceInfo.model}\niOS: ${deviceInfo.systemVersion}\nName: ${deviceInfo.name}";
+    }
+
+    setState(() {});
   }
 
   @override
@@ -97,8 +114,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _checkDeviceInfo,
+              child: Text("Check Device Info"),
+            ),
+            Text(_deviceInfo),
           ],
         ),
       ),

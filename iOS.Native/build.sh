@@ -1,24 +1,60 @@
 # Builds a xc library for a given xcode project (framework)
 echo "Define parameters"
-IOS_SDK_VERSION="17.2" # xcodebuild -showsdks
+IOS_SDK_VERSION="18.2" # xcodebuild -showsdks
 MAUI_BINDING_NAME="iOS.Binding"
 SWIFT_PROJECT_NAME="Binding"
 SWIFT_PROJECT_PATH="$SWIFT_PROJECT_NAME.xcodeproj"
 SWIFT_BUILD_PATH="build"
+FLUTTER_FRAMEWORKS_PATH="../flutter_app/build/ios/framework/Release"
+
+echo "Cleanup existing xcframeworks"
+# Remove all xcframeworks from the binding directory
+rm -Rf "../$MAUI_BINDING_NAME/"*.xcframework
+
+echo "Copy Flutter xcframeworks"
+# Check if Flutter frameworks directory exists
+if [ -d "$FLUTTER_FRAMEWORKS_PATH" ]; then
+    echo "Copying xcframeworks from Flutter build..."
+    cp -R "$FLUTTER_FRAMEWORKS_PATH/"*.xcframework "../$MAUI_BINDING_NAME/"
+else
+    echo "Warning: Flutter frameworks directory not found at $FLUTTER_FRAMEWORKS_PATH"
+    exit 1
+fi
 
 echo "Build iOS framework for simulator and device"
 rm -Rf "$SWIFT_BUILD_PATH"
 rm -Rf "$SWIFT_PROJECT_NAME.xcframework"
-rm -Rf "../iOS.Binding/$SWIFT_PROJECT_NAME.xcframework"
-xcodebuild -sdk iphonesimulator$IOS_SDK_VERSION -project "$SWIFT_PROJECT_PATH" -configuration Release
-xcodebuild -sdk iphoneos$IOS_SDK_VERSION -project "$SWIFT_PROJECT_PATH" -configuration Release
+xcodebuild -sdk \
+    iphonesimulator$IOS_SDK_VERSION \
+    -project "$SWIFT_PROJECT_PATH" \
+    -configuration Release
+xcodebuild -sdk \
+    iphoneos$IOS_SDK_VERSION \
+    -project "$SWIFT_PROJECT_PATH" \
+    -configuration Release
 
 xcodebuild -create-xcframework -framework "$SWIFT_BUILD_PATH/Release-iphoneos/$SWIFT_PROJECT_NAME.framework/" -framework "$SWIFT_BUILD_PATH/Release-iphonesimulator/$SWIFT_PROJECT_NAME.framework/" -output "$SWIFT_PROJECT_NAME.xcframework"
+FRAMEWORK_PATH="$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework"
 
+# Create the Headers directory structure and copy header file to correct location
 echo "Generating binding api definition and structs"
-mkdir "$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework/Headers/$SWIFT_PROJECT_NAME"
-cp "$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework/Headers/$SWIFT_PROJECT_NAME.h" "$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework/Headers/$SWIFT_PROJECT_NAME/$SWIFT_PROJECT_NAME.h"
-sharpie bind --sdk=iphoneos$IOS_SDK_VERSION --namespace="$MAUI_BINDING_NAME" --scope="$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework/Headers/" "$SWIFT_PROJECT_NAME.xcframework/ios-arm64/$SWIFT_PROJECT_NAME.framework/Headers/$SWIFT_PROJECT_NAME-Swift.h"
+mkdir -p "$FRAMEWORK_PATH/Headers/$SWIFT_PROJECT_NAME"
+cp "$FRAMEWORK_PATH/Headers/$SWIFT_PROJECT_NAME.h" "$FRAMEWORK_PATH/Headers/$SWIFT_PROJECT_NAME/$SWIFT_PROJECT_NAME.h"
+sharpie bind \
+    --sdk=iphoneos$IOS_SDK_VERSION \
+    --namespace="$MAUI_BINDING_NAME" \
+    --scope="$FRAMEWORK_PATH/Headers/" \
+    "$FRAMEWORK_PATH/Headers/$SWIFT_PROJECT_NAME-Swift.h"
+
+echo "Post-processing ApiDefinitions.cs..."
+# Delete using Binding;
+sed -i '' '/using Binding;/d' "ApiDefinitions.cs"
+# Add using UIKit;
+sed -i '' '/using Foundation;/a\
+using UIKit;\
+' "ApiDefinitions.cs"
+# Delete [Verify] attribute
+sed -i '' '/\[Verify.*\]/d' "ApiDefinitions.cs"
 
 echo "Cleanup, Move xcframework and ApiDefinitions..."
 rm -Rf "$SWIFT_BUILD_PATH"
